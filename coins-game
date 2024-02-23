@@ -1,0 +1,99 @@
+# inspired by https://www.cut-the-knot.org/Curriculum/Games/Coins.shtml#discussion
+
+from random import choice
+import time
+
+####################################################################
+# The following is the game setup.
+# You should 'package' it into one or more functions in order to
+# hide the details ('functional abstraction')
+####################################################################
+
+def setup(n):
+  c = [] # the coin values (cents, nickles, dimes)
+  positions = range(1, n + 1) # the coins original positions for determining odd/even takes by computer 
+  for i in range(n):
+    c.append(choice([1, 5, 10]))
+  print "This is our list of coins:"
+  print c
+  print "We'll take turns picking a coin either from the left or right side of the list."
+  print "The computer will start."
+  print 
+  calculating()
+  return c
+
+def evenOdd(n, cList):
+  even = 0
+  odd = 0
+  for i in range(1, n+1):
+    if i%2 == 0:
+      even += cList[i-1]
+    else:
+      odd += cList[i-1]
+  if even > odd:
+    return 'even'
+  else:
+    return 'odd'
+    
+def printScore(cList, cSum, uSum):
+    print "Computer sum:", cSum, ",",
+    print "Your sum:", uSum
+    if len(cList) != 0: print cList
+    print
+    
+def calculating():
+  print "Calculating..."
+  time.sleep(1)
+  
+def printResults():
+  print "Calculating results..."
+  time.sleep(2)
+  if computerSum > userSum:
+    print "The computer won!! You lose."
+  else:
+    print "Tie game!"
+  printScore(coins, computerSum, userSum)
+  
+  
+### MAIN ###
+
+n_coins = 10
+assert n_coins % 2 == 0  # for simplicity, should always be an even number, so verify it:
+coins = setup(n_coins)  # the coin values (cents, nickles, dimes)
+computerSum = 0
+userSum = 0
+
+if evenOdd(n_coins, coins) == 'even':
+  chosen = len(coins)-1  #last index 
+  print "The computer picked from the right."
+else:
+  chosen = 0  #first index
+  print "The computer picked from the left."
+computerSum += coins[chosen] 
+coins.pop(chosen)
+printScore(coins, computerSum, userSum)
+
+while True:
+  pick = input("Pick a coin either from the left or right (l, r): ")
+  if pick == "r":
+    chosen = len(coins)-1  #last index 
+  else:
+    chosen = 0  #first index
+  userSum += coins[chosen]
+  coins.pop(chosen)
+  printScore(coins, computerSum, userSum)
+  
+  if len(coins) == 0: break
+
+  calculating()
+  if pick == "r":
+    chosen = len(coins)-1  #last index 
+    print "The computer picked from the right."
+  else:
+    chosen = 0  #first index
+    print "The computer picked from the left."
+  computerSum += coins[chosen]
+  coins.pop(chosen)
+  printScore(coins, computerSum, userSum)   
+  
+printResults()
