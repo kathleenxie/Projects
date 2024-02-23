@@ -1,0 +1,315 @@
+import turtle 
+import time
+import random
+
+def createPos(t, length): # initialize turtle positions of tiles
+  positions = {
+    1: [t.xcor()-(length*1.5), t.ycor()+(length*1.5)],
+    2: [t.xcor()-(length*.5), t.ycor()+(length*1.5)],
+    3: [t.xcor()+(length*.5), t.ycor()+(length*1.5)],
+    4: [t.xcor()+(length*1.5), t.ycor()+(length*1.5)],
+    
+    5: [t.xcor()-(length*1.5), t.ycor()+(length*.5)],
+    6: [t.xcor()-(length*.5), t.ycor()+(length*.5)],
+    7: [t.xcor()+(length*.5), t.ycor()+(length*.5)],
+    8: [t.xcor()+(length*1.5), t.ycor()+(length*.5)],
+    
+    9: [t.xcor()-(length*1.5), t.ycor()-(length*.5)],
+    10: [t.xcor()-(length*.5), t.ycor()-(length*.5)],
+    11: [t.xcor()+(length*.5), t.ycor()-(length*.5)],
+    12: [t.xcor()+(length*1.5), t.ycor()-(length*.5)],    
+
+    13: [t.xcor()-(length*1.5), t.ycor()-(length*1.5)],
+    14: [t.xcor()-(length*.5), t.ycor()-(length*1.5)],
+    15: [t.xcor()+(length*.5), t.ycor()-(length*1.5)],
+    16: [t.xcor()+(length*1.5), t.ycor()-(length*1.5)],    
+  }
+  return positions
+
+def createBoard(t, length):  # size of board is 4 x 4
+  t.penup()
+  t.goto(-150, 150)
+  t.pendown()
+  for i in range(4): 
+    for j in range(4):
+      for k in range(4): # draw square
+        t.forward(length)
+        t.right(90)
+      t.forward(length)
+    t.left(180) # return to left side of board
+    for z in range(4):
+      t.forward(length)
+    t.left(90)
+    t.forward(length)
+    t.left(90)
+  t.left(90)
+  t.forward(length*2)
+  t.right(90)
+  t.forward(length*2)
+    
+
+def drawNum(t, pos, num, length, backPos): # draw number in position with turtle
+  t.penup()
+  t.goto(createPos(t, length)[pos])
+  t.sety(t.ycor()-length*0.1) # to center the number, start a bit above center
+  t.pendown()
+  numSize = length/4 + 1-(length/4 - int(length/4))
+  t.write(num, align="center", font=('Arial', numSize, 'normal'))
+  t.penup()
+  t.goto(backPos)
+  
+def initGrid():
+  grid = []
+  for i in range(4):
+    row = [0]*4
+    grid.append(row)
+  return grid
+  
+def printGrid(grid):
+  for i in range(len(grid)):
+    for j in range(len(grid[i])):
+      print grid[i][j],
+    print
+  print 
+
+def rand(grid): # add random 2s/4s on board
+  count0 = 0
+  for i in range(4): count0 += grid[i].count(0)
+  if count0 == 0: return False # prevent infinite loop in case of no open spaces
+  x = random.randint(0, 3)  # pick random position
+  y = random.randint(0, 3) 
+  while grid[x][y] != 0:
+    x = random.randint(0, 3)   
+    y = random.randint(0, 3) 
+  new = random.randint(0, 2) # 2/3 chance for a 2, 1/3 chance for a 4
+  if new == 0 or new == 1: 
+    grid[x][y] = 2
+  else:
+    grid[x][y] = 4
+  return [x, y]
+  
+def drawBoard(t, grid):
+  for x in range(4):
+    for y in range(4):
+      pos = x*3+y+1 if x == 0 else x*4+y+1
+      num = grid[x][y]
+      if num != 0:
+        drawNum(t, pos, num, aLength, middle)
+        
+def drawNew(t, x, y):
+  pos = x*3+y+1 if x == 0 else x*4+y+1
+  num = grid[x][y]
+  t.color("blue")
+  if num != 0:
+    drawNum(t, pos, num, aLength, middle)
+  t.color("black")
+  
+def shiftBoard(grid, direction): # shifts all tiles in one direction, combining adjacent tiles that have the same number 
+  if direction == 'w': #up  
+    row = 1
+    for col in range(4):
+      if grid[0][col] == 0: grid[row][col], grid[0][col] = grid[0][col], grid[row][col]
+      elif grid[0][col] == grid[row][col]:
+        grid[0][col] *= 2
+        grid[row][col] = 0
+    row = 2
+    for col in range(4):
+      if grid[0][col] == 0 and grid[1][col] == 0: grid[row][col], grid[0][col] = grid[0][col], grid[row][col]
+      elif grid[0][col] != 0 and grid[1][col] == 0:
+        if grid[0][col] == grid[row][col]: 
+          grid[0][col] *= 2
+          grid[row][col] = 0
+        else: grid[1][col], grid[row][col] = grid[row][col], grid[1][col]
+      elif grid[0][col] != 0 and grid[1][col] != 0:
+        if grid[1][col] == grid[row][col]: 
+          grid[1][col] *= 2
+          grid[row][col] = 0
+    row = 3
+    for col in range(4):
+      if grid[0][col] == 0 and grid[1][col] == 0 and grid[2][col] == 0: grid[row][col], grid[0][col] = grid[0][col], grid[row][col]
+      elif grid[0][col] != 0 and grid[1][col] == 0 and grid[2][col] == 0:
+        if grid[0][col] == grid[row][col]: 
+          grid[0][col] *= 2
+          grid[row][col] = 0
+        else: grid[row][col], grid[1][col] = grid[1][col], grid[row][col]
+      elif grid[0][col] != 0 and grid[1][col] != 0 and grid[2][col] == 0: 
+        if grid[1][col] == grid[row][col]:
+          grid[1][col] *= 2
+          grid[row][col] = 0
+        else: grid[row][col], grid[2][col] = grid[2][col], grid[row][col]
+      elif grid[0][col] != 0 and grid[1][col] != 0 and grid[2][col] != 0: 
+        if grid[2][col] == grid[row][col]: 
+          grid[2][col] *= 2
+          grid[row][col] = 0
+          
+  elif direction == 's': #down 
+    row = 2
+    for col in range(4):
+      if grid[3][col] == 0: grid[row][col], grid[3][col] = grid[3][col], grid[row][col]
+      elif grid[3][col] == grid[row][col]:
+        grid[3][col] *= 2
+        grid[row][col] = 0
+    row = 1
+    for col in range(4):
+      if grid[3][col] == 0 and grid[2][col] == 0: grid[row][col], grid[3][col] = grid[3][col], grid[row][col]
+      elif grid[3][col] != 0 and grid[2][col] == 0:
+        if grid[3][col] == grid[row][col]: 
+          grid[3][col] *= 2
+          grid[row][col] = 0
+        else: grid[2][col], grid[row][col] = grid[row][col], grid[2][col]
+      elif grid[3][col] != 0 and grid[2][col] != 0:
+        if grid[2][col] == grid[row][col]: 
+          grid[2][col] *= 2
+          grid[row][col] = 0
+    row = 0
+    for col in range(4):
+      if grid[3][col] == 0 and grid[2][col] == 0 and grid[1][col] == 0: grid[row][col], grid[3][col] = grid[3][col], grid[row][col]
+      elif grid[3][col] != 0 and grid[2][col] == 0 and grid[1][col] == 0:
+        if grid[3][col] == grid[row][col]: 
+          grid[3][col] *= 2
+          grid[row][col] = 0
+        else: grid[row][col], grid[2][col] = grid[2][col], grid[row][col]
+      elif grid[3][col] != 0 and grid[3][col] != 0 and grid[1][col] == 0: 
+        if grid[2][col] == grid[row][col]:
+          grid[2][col] *= 2
+          grid[row][col] = 0
+        else: grid[row][col], grid[1][col] = grid[1][col], grid[row][col]
+      elif grid[3][col] != 0 and grid[2][col] != 0 and grid[1][col] != 0: 
+        if grid[1][col] == grid[row][col]: 
+          grid[1][col] *= 2
+          grid[row][col] = 0
+
+  elif direction == 'a': #left 
+    col = 1
+    for row in range(4):
+      if grid[row][0] == 0: grid[row][col], grid[row][0] = grid[row][0], grid[row][col]
+      elif grid[row][0] == grid[row][col]:
+        grid[row][0] *= 2
+        grid[row][col] = 0
+    col = 2
+    for row in range(4):
+      if grid[row][0] == 0 and grid[row][1] == 0: grid[row][col], grid[row][0] = grid[row][0], grid[row][col]
+      elif grid[row][0] != 0 and grid[row][1] == 0:
+        if grid[row][0] == grid[row][col]: 
+          grid[row][0] *= 2
+          grid[row][col] = 0
+        else: grid[row][1], grid[row][col] = grid[row][col], grid[row][1]
+      elif grid[row][0] != 0 and grid[row][1] != 0:
+        if grid[row][1] == grid[row][col]: 
+          grid[row][1] *= 2
+          grid[row][col] = 0
+    col = 3
+    for row in range(4):
+      if grid[row][0] == 0 and grid[row][1] == 0 and grid[row][2] == 0: grid[row][col], grid[row][0] = grid[row][0], grid[row][col]
+      elif grid[row][0] != 0 and grid[row][1] == 0 and grid[row][2] == 0:
+        if grid[row][0] == grid[row][col]: 
+          grid[row][0] *= 2
+          grid[row][col] = 0
+        else: grid[row][col], grid[row][1] = grid[row][1], grid[row][col]
+      elif grid[row][0] != 0 and grid[row][1] != 0 and grid[row][2] == 0: 
+        if grid[row][1] == grid[row][col]:
+          grid[row][1] *= 2
+          grid[row][col] = 0
+        else: grid[row][col], grid[row][2] = grid[row][2], grid[row][col]
+      elif grid[row][0] != 0 and grid[row][1] != 0 and grid[row][2] != 0: 
+        if grid[row][2] == grid[row][col]: 
+          grid[row][2] *= 2
+          grid[row][col] = 0
+          
+  elif direction == 'd': #right 
+    col = 2
+    for row in range(4):
+      if grid[row][3] == 0: grid[row][col], grid[row][3] = grid[row][3], grid[row][col]
+      elif grid[row][3] == grid[row][col]:
+        grid[row][3] *= 2
+        grid[row][col] = 0
+    col = 1
+    for row in range(4):
+      if grid[row][3] == 0 and grid[row][2] == 0: grid[row][col], grid[row][3] = grid[row][3], grid[row][col]
+      elif grid[row][3] != 0 and grid[row][2] == 0:
+        if grid[row][3] == grid[row][col]: 
+          grid[row][3] *= 2
+          grid[row][col] = 0
+        else: grid[row][2], grid[row][col] = grid[row][col], grid[row][2]
+      elif grid[row][3] != 0 and grid[row][2] != 0:
+        if grid[row][2] == grid[row][col]: 
+          grid[row][2] *= 2
+          grid[row][col] = 0
+    col = 0
+    for row in range(4):
+      if grid[row][3] == 0 and grid[row][2] == 0 and grid[row][1] == 0: grid[row][col], grid[row][3] = grid[row][3], grid[row][col]
+      elif grid[row][3] != 0 and grid[row][2] == 0 and grid[row][1] == 0:
+        if grid[row][3] == grid[row][col]: 
+          grid[row][3] *= 2
+          grid[row][col] = 0
+        else: grid[row][col], grid[row][2] = grid[row][2], grid[row][col]
+      elif grid[row][3] != 0 and grid[row][2] != 0 and grid[row][1] == 0: 
+        if grid[row][2] == grid[row][col]:
+          grid[row][2] *= 2
+          grid[row][col] = 0
+        else: grid[row][col], grid[row][1] = grid[row][1], grid[row][col]
+      elif grid[row][3] != 0 and grid[row][2] != 0 and grid[row][1] != 0: 
+        if grid[row][1] == grid[row][col]: 
+          grid[row][1] *= 2
+          grid[row][col] = 0
+    
+def gameOver(grid):
+  count2048 = 0
+  for i in range(4): 
+    for j in range(4):
+      if grid[i][j] == 2048:
+        count2048 += 1
+  if count2048 > 0: 
+    print("You reached 2048! Congrats!")
+    return True
+  else:
+    testGrid = [row[:] for row in grid]
+    shiftBoard(testGrid, 'w')
+    shiftBoard(testGrid, 'a')
+    shiftBoard(testGrid, 's')
+    shiftBoard(testGrid, 'd')
+    if grid == testGrid: 
+      print("GAME OVER")
+      return False
+    else:
+      return None
+    
+############### MAIN ################
+
+drawer = turtle.Turtle()
+a = turtle.Turtle()
+drawer.speed(speed=0)
+a.speed(speed=0)
+a.hideturtle()
+aLength = 65
+gameBoard = createBoard(drawer, aLength)
+drawer.hideturtle()
+middle = drawer.pos()
+
+a.penup()
+a.setpos(middle)
+a.showturtle()
+grid = initGrid()
+
+rand(grid)
+rand(grid)
+drawBoard(a, grid)
+
+while gameOver(grid) == None:
+  direction = input("Enter direction (w,a,s,d):")
+  while direction != 'w' and direction != 'a' and direction != 's' and direction != 'd':
+    direction = input("Enter direction (w,a,s,d):")
+  shiftBoard(grid, direction)
+  a.clear()
+  drawBoard(a, grid)
+  r = rand(grid)
+  if r != False: drawNew(a, r[0], r[1])
+
+a.clear()
+drawer.clear()
+if gameOver(grid) == True:
+  a.write("You reached 2048! Congrats!", align="center", font=('Arial', 20, 'normal'))
+elif gameOver(grid) == False:
+  a.write("GAME OVER", align="center", font=('Arial', 30, 'normal'))
+a.hideturtle()
+
