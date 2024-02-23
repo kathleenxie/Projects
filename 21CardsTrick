@@ -1,0 +1,65 @@
+def initDeck(n):
+  deck = []
+  for i in range(n):
+    deck.append(i+1)
+  return deck
+
+def displayDeck(d):
+  print "initial deck:\n", deck
+  
+def displayPiles(p1, p2, p3):
+  print "\npile 1:", p1
+  print "pile 2:", p2
+  print "pile 3:", p3
+  
+def splitToPiles(deck):
+  p1 = []
+  p2 = []
+  p3 = []
+  for i in range(len(deck)):
+    if i%3 == 0:
+      p1.append(deck[i])
+    elif i%3 == 1:
+      p2.append(deck[i])
+    elif i%3 == 2:
+      p3.append(deck[i])
+  return p1, p2, p3
+  
+def collectPiles(p1, p2, p3, c):
+  newDeck = []
+  if c == 1:
+    for i in p2:
+      newDeck.append(i)
+    for i in p3:
+      newDeck.append(i)
+    for i in p1:
+      newDeck.append(i)
+  elif c == 2:
+    for i in p1:
+      newDeck.append(i)
+    for i in p3:
+      newDeck.append(i)
+    for i in p2:
+      newDeck.append(i)
+  elif c == 3:
+    for i in p1:
+      newDeck.append(i)
+    for i in p2:
+      newDeck.append(i)
+    for i in p3:
+      newDeck.append(i)
+  return newDeck
+
+#MAIN
+nCards = 21
+deck = initDeck(nCards)
+displayDeck(deck)
+
+for i in range(3):
+  pile1, pile2, pile3 = splitToPiles(deck)
+  displayPiles(pile1, pile2, pile3)
+  col = int(input("In which column is your card (1, 2, or 3)?"))
+  deck = collectPiles(pile1, pile2, pile3, col)
+  
+print '\nYour card is:', deck[20]
+
