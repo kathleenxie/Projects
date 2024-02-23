@@ -1,0 +1,105 @@
+import turtle
+import random
+import time
+
+colors = ['red', 'blue', 'green', 'orange', 'black', 'magenta', 'brown', 'lime', 'purple', 'darkblue', 'navy', 'teal', 'cyan']
+
+def create_drawer():
+  drawer = turtle.Turtle()
+  drawer.hideturtle()
+  drawer.penup()
+  drawer.speed(10)   # speed up screen refresh/drawing
+  drawer.goto(-50, 50)
+  return drawer
+
+def pinwheel_1(drawer):
+  drawer.pendown()
+  i = 0
+  while i < 3:
+    drawer.fd(50)
+    drawer.back(20)
+    drawer.right(120)
+    i += 1
+
+def pinwheel_2(drawer, sides, line_size, go_back):
+  drawer.pendown()
+  i = 0
+  while i < sides:
+    drawer.pencolor(random.randint(1, 255), random.randint(1, 255), random.randint(1, 255))
+    drawer.fd(line_size)
+    drawer.back(go_back)
+    drawer.right(360/sides)
+    i += 1
+
+def straight_pinwheel(drawer, sides, line_size, go_back):
+  pinwheel_2(drawer, sides, line_size, go_back)
+  
+def reverse_pinwheel(drawer, sides, line_size, go_back):
+  drawer.pendown()
+  i = 0
+  while i < sides:
+    drawer.pencolor(random.randint(1, 255), random.randint(1, 255), random.randint(1, 255))
+    drawer.fd(line_size)
+    drawer.back(go_back)
+    drawer.left(360/sides)
+    i += 1
+  
+def asterisk(drawer, sides, line_size):
+  pinwheel_2(drawer, sides, line_size, line_size)
+
+def polygon(drawer, sides, line_size):
+    pinwheel_2(drawer, sides, line_size, 0)
+
+def draw_pinwheels(drawer, pinwheel_type, n): #n in the range of 4-8
+  drawer.goto(-180, 180)
+  line_size = 20
+  go_back = 10
+  sides = 3
+  for i in range(n):
+    if pinwheel_type == "straight pinwheel":
+      straight_pinwheel(drawer, sides, line_size, go_back)
+    elif pinwheel_type == "asterisk":
+      asterisk(drawer, sides, line_size)
+    elif pinwheel_type == "reverse pinwheel":
+      reverse_pinwheel(drawer, sides, line_size, go_back)
+    elif pinwheel_type == "polygon":
+      polygon(drawer, sides, line_size)
+    drawer.penup()
+    drawer.goto(drawer.xcor()+45, drawer.ycor()-45)
+    sides += 1
+    
+def circle(drawer, pinwheel_type):
+  drawer.goto(0, -50)
+  line_size = 20
+  go_back = 10
+  sides = 6
+  for i in range(18):
+    drawer.penup()
+    drawer.circle(50, 20)
+    if pinwheel_type == "straight pinwheel":
+      straight_pinwheel(drawer, sides, line_size, go_back)
+    elif pinwheel_type == "asterisk":
+      asterisk(drawer, sides, line_size)
+    elif pinwheel_type == "reverse pinwheel":
+      reverse_pinwheel(drawer, sides, line_size, go_back)
+    elif pinwheel_type == "polygon":
+      polygon(drawer, sides, line_size)
+  
+
+####################
+# The main program:
+####################
+
+tammy = create_drawer()
+
+#pinwheel_1(tammy)
+#pinwheel_2(tammy, 5, 40, 10)
+#asterisk(tammy, 3, 20)
+#reverse_pinwheel(tammy, 3, 30, 15)
+#polygon(tammy, 3, 20)
+
+draw_pinwheels(tammy, "reverse pinwheel",  8)
+time.sleep(2)
+tammy.clear()
+
+circle(tammy, "polygon")
