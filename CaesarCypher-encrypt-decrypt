@@ -6,7 +6,6 @@ def init():
   # a 'dictionary' to check if words are really English words/vocabulary and not just "gibberish"
 
   global LETTERS, words
-  # depending on your simplifying assumptions, you may/may not want to extend this
   size_of_code = 95 # encrypt/decrypt 95 ASCII characters (32 to 126) 
   for i in range(size_of_code):
     LETTERS += chr(ord(' ') + i)
@@ -20,8 +19,7 @@ def init():
   return len(words)
 
 
-def binary_search(word):  # use the binary search function you created in a past project
-  # search (binarily!) in the "words" list (which is global -- see the main program)
+def binary_search(word):  
   first = 0
   last = len(words)-1
   found = False
