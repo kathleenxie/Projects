@@ -1,0 +1,45 @@
+poem1 = '''
+Hickory, dickory, dock,
+The mouse ran up the clock;
+The clock struck one,
+The mouse ran down,
+Hickory, dickory, dock.
+'''
+
+poem2 = '''
+Hey, diddle, diddle,
+The cat and the fiddle,
+The cow jumped over the moon;
+The little dog laughed
+To see such sport,
+And the dish ran away with the spoon.
+'''
+
+def makeAcrostic(poem, longest, cap):
+  poemList = []
+  newL = []
+  for i in range(1, len(poem)):  #read poem into list
+    if poem[i] != '\n':
+      newL.append(poem[i])
+    else:
+      poemList.append(newL)
+      newL = []
+
+  word = input("Enter a word to make an acrostic:")
+  for i in range(len(word)):
+    for j in range(len(poemList[i])):
+      if word[i].lower() == poemList[i][j].lower(): 
+        pos = j+1
+        if cap == True:
+          poemList[i][j] = poemList[i][j].upper()
+        poemList[i].insert(pos-1, '_')    
+        poemList[i].insert(pos+1, '_')
+        while poemList[i].index('_') < longest*3:  
+          poemList[i].insert(0, ' ')
+        break
+  for i in range(len(poemList)):
+    print(''.join(poemList[i]))
+ 
+ 
+print poem2
+makeAcrostic(poem2, 9, cap = True)
