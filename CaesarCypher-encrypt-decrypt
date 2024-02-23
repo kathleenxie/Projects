@@ -1,0 +1,117 @@
+from urllib.request import *
+
+def init():
+  
+  # read all the words from a list into a "words" variable (a list) to serve as
+  # a 'dictionary' to check if words are really English words/vocabulary and not just "gibberish"
+
+  global LETTERS, words
+  # depending on your simplifying assumptions, you may/may not want to extend this
+  size_of_code = 95 # encrypt/decrypt 95 ASCII characters (32 to 126) 
+  for i in range(size_of_code):
+    LETTERS += chr(ord(' ') + i)
+  print LETTERS
+  
+  # open wordlist file
+  f = urlopen("https://raw.githubusercontent.com/myh90/student-projects-demos/master/wordlist-10000.txt")
+  words = f.readlines()
+  for i in range(len(words)):
+    words[i] = words[i][0:-1] # strip trailing "\n"
+  return len(words)
+
+
+def binary_search(word):  # use the binary search function you created in a past project
+  # search (binarily!) in the "words" list (which is global -- see the main program)
+  first = 0
+  last = len(words)-1
+  found = False
+
+  while first<=last and not found:
+    midpoint = (first + last)//2
+    if words[midpoint] == word:
+      found = True
+    else:
+      if word < words[midpoint]:
+        last = midpoint-1
+      else:
+        first = midpoint+1
+  return found # if you found the word in the words list
+
+
+def words_in_wordlist(s):
+
+  # check if each word in the sentence s is found in the "words" wordlist.
+  # if most of the words (80%, per the found_threshold below) is found,
+  # then assume it's a valid sentence and return True. Otherwise return False.
+  
+  s_l = s.lower().split(" ")
+  found_threshold = 0.5 # fraction of words in s which were found in wordlist
+  found_count = 0
+  count = 0
+  for word in s_l:
+    count += 1              # count the total number of words in the sentence
+    if binary_search(word): # use your binary search fuunction from a past project!
+      found_count += 1      # count how many words you actually found in the wordlist
+  if found_count / count >= found_threshold:  # this may be a legitimate sentence, since it is above the threshold
+     return True
+  return False
+  
+def encrypt(message, key):
+  new = ''
+  for i in range(len(message)):
+    shifted = LETTERS.find(message[i]) + key 
+    if LETTERS.find(message[i]) + key > len(LETTERS):
+      shifted = shifted - len(LETTERS)
+    new += LETTERS[shifted]
+  return new
+  
+
+def decrypt(message):
+  key = 1
+  valid = False
+  while valid == False:
+    new = ''
+    for i in range(len(message)):
+      shifted = LETTERS.find(message[i]) - key 
+      if LETTERS.find(message[i]) + key < 0:
+        shifted = len(LETTERS)+1 + shifted
+      new += LETTERS[shifted]
+    if words_in_wordlist(new):
+      valid = True
+    key += 1
+  return new
+
+
+#################################
+# main
+#################################
+
+LETTERS = ''  # all letters to be used for shifting/encryption/decryption
+words = []    # wordlist (English words)
+
+size = init()
+print 'Read', size, 'words'  # for testing that the words were successfully read
+operation = input('\nDo you want to [e]ncrypt or [d]ecrypt, or [end]? [e, d, end]').lower()
+while operation != 'end':
+  if operation == 'e':
+    plain = input("Enter your message:") # ask for the plain-text message
+    key = int(input("Enter your encryption key:")) # ask for the encryption key
+    encrypted_sentence = encrypt(plain, key) # do the encryption here. Use functions! 
+    print "encrypted sentence:", encrypted_sentence
+  elif operation == 'd':
+    message = input("Enter the encrypted message:") # ask for the encrypted message
+    decrypted_sentence = decrypt(message) # do the decryption here. Use functions!
+    if words_in_wordlist(decrypted_sentence):
+      print "decrypted sentence:", decrypted_sentence
+  else:
+    print 'Sorry, I cannot do that!'
+  operation = input('\nDo you want to [e]ncrypt or [d]ecrypt, or [end]? [e, d, end]').lower()
+print "\nRemember: Encryption plays a fundamental role in protecting us all online. It is key to growing the digital economy and delivering public services online. But, like many powerful technologies, encrypted services are also used and abused by a small (and often dangerous) minority of people."
+
+
+#m = "Invasion of Normandy is on 6 June 1944"
+#key = 4: Mrzewmsr$sj$Rsvqerh}$mw$sr$:$Nyri$5=88
+
+#message: On the fifteenth of February, a giant hurricane wiped out the entire population on Earth.
+
+
